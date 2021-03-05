@@ -310,7 +310,7 @@ const getBuyOrderQuantity = (logger, symbolInfo, balanceInfo, indicators) => {
   const orderQuantity = parseFloat(
     _.floor(
       orderQuantityBeforeCommission -
-        orderQuantityBeforeCommission * (0.1 / 100),
+      orderQuantityBeforeCommission * (0.1 / 100),
       lotPrecision
     )
   );
@@ -620,9 +620,14 @@ const getIndicators = async (symbol, logger) => {
 const determineAction = async (logger, indicators) => {
   let action = 'wait';
 
-  const { symbol, lowestClosed, lastCandle } = indicators;
+  const diff = ((1 - lastCandle.close / lowestClosed) * -100)
 
-  if (lastCandle.close <= lowestClosed) {
+  const { symbol, lowestClosed, lastCandle } = indicators;
+  logger.info(
+    { symbol, lowestClosed, close: lastCandle.close, diff },
+    "Diff indicators"
+  );
+  if (lastCandle.close <= lowestClosed || diff <= 1) {
     action = 'buy';
     logger.info(
       { symbol, lowestClosed, close: lastCandle.close },
